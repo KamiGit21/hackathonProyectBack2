@@ -26,14 +26,14 @@ services:
     
   pagos-service:
     build:
-      context: ./pagos_service
+      context: ./pagos-service
       dockerfile: Dockerfile
     container_name: pagos-service
     ports:
       - "8003:8003"
     environment:
-    USE_FIRESTORE: "true"
-    FIREBASE_CREDENTIALS_PATH: "/app/firebase-key.json"
+      USE_FIRESTORE: "true"
+      FIREBASE_CREDENTIALS_PATH: "/app/firebase-key.json"
     volumes:
       - ./firebase-key.json:/app/firebase-key.json:ro
     networks:
