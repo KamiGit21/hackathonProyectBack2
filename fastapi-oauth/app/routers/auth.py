@@ -115,7 +115,7 @@ async def google_callback(request: Request):
 
     # Cargar doc completo para extraer roles
     doc = get_user_doc(uid) or {}
-    roles = doc.get("roles", ["EMPLOYEE"])
+    roles = doc.get("roles", ["CLIENT"])
 
     # 4) Emite tu JWT propio incluyendo roles (útil para BFF/UI)
     access = create_access_token({"sub": uid, "email": userinfo.get("email"), "roles": roles})

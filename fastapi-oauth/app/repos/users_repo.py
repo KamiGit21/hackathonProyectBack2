@@ -62,36 +62,36 @@ def create_or_update_from_google(profile: Dict[str, Any], uid: str) -> UserOut:
 
     doc_ref = _users_col().document(uid)
     snap = doc_ref.get()
+
     if not snap.exists:
-        # ⛳ primer usuario del sistema => HR_ADMIN
-        roles = ["EMPLOYEE"]
+        # 👉 Primer usuario del sistema = ADMIN, resto = CLIENT
+        roles = ["CLIENT"]
         if _is_first_user():
-            roles = ["HR_ADMIN"]  # que admin arranque
+            roles = ["ADMIN"]
         data["roles"] = roles
         data["created_at"] = now
         doc_ref.set(data)
     else:
-        # no pisar roles existentes
         existing = snap.to_dict() or {}
-        data["roles"] = existing.get("roles", ["EMPLOYEE"])
+        data["roles"] = existing.get("roles", ["CLIENT"])
         doc_ref.set(data, merge=True)
 
+    # 🔁 OPCIONAL: crear/actualizar también en colección "clientes"
     try:
         fs = get_firestore()
-        emp_col = fs.collection("employees")
-        # ¿ya existe empleado por email?
-        dup = emp_col.where("email", "==", email).limit(1).stream()
+        clientes_col = fs.collection("clientes")
+        dup = clientes_col.where("email", "==", email).limit(1).stream()
         if next(dup, None) is None:
-            emp_col.document().set({
-                # si usas "ci", déjalo como None o agrega lógica para mapear
-                "ci": None,
-                "name": profile.get("name") or f'{profile.get("given_name","")} {profile.get("family_name","")}'.strip(),
+            clientes_col.document().set({
+                "nombre": profile.get("given_name") or "",
+                "apellidos": profile.get("family_name") or "",
                 "email": email,
-                "phone": None,
-                "status": "ACTIVE",
+                "estado": "ACTIVO",
+                "fecha_alta": now,
+                # CI / teléfono se podrán completar luego desde el front
             })
     except Exception as e:
-        print(f"[WARN] employees mirror failed: {e}")
+        print(f"[WARN] clientes mirror failed: {e}")
 
     return _to_user_out({**snap.to_dict(), **data} if snap.exists else data)
 

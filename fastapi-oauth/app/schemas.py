@@ -7,9 +7,8 @@ from enum import Enum
 from typing import List
 
 class Role(str, Enum):
-    HR_ADMIN = "HR_ADMIN"
-    MANAGER = "MANAGER"
-    EMPLOYEE = "EMPLOYEE"
+    ADMIN = "ADMIN"
+    CLIENT = "CLIENT"
 
 class AuthUser(BaseModel):
     uid: str
