@@ -13,7 +13,9 @@ services:
       - ./fastapi-oauth/secrets:/app/secrets:ro
     restart: unless-stopped
   pagos-service:
-    build: .
+    build:
+      context: ./pagos_service
+      dockerfile: Dockerfile
     container_name: pagos-service
     ports:
       - "8003:8003"
