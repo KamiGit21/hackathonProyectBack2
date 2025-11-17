@@ -12,3 +12,19 @@ services:
     volumes:
       - ./fastapi-oauth/secrets:/app/secrets:ro
     restart: unless-stopped
+  pagos-service:
+    build: .
+    container_name: pagos-service
+    ports:
+      - "8003:8003"
+    environment:
+    USE_FIRESTORE: "true"
+    FIREBASE_CREDENTIALS_PATH: "/app/firebase-key.json"
+    volumes:
+      - ./firebase-key.json:/app/firebase-key.json:ro
+    networks:
+      - micro-net
+
+networks:
+  micro-net:
+    driver: bridge
