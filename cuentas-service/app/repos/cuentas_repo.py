@@ -1,8 +1,8 @@
 from typing import List, Optional
 from datetime import datetime
 from firebase_admin import firestore
-from models import Cuenta, Movimiento, EstadoCuenta
-from schemas import CuentaFilter, MovimientoFilter
+from app.models import Cuenta, Movimiento, EstadoCuenta
+from app.schemas import CuentaFilter, MovimientoFilter
 import random
 import string
 

@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List, Optional
-from services.cuentas_service import CuentasService
-from schemas import (
+from app.services.cuentas_service import CuentasService
+from app.schemas import (
     CuentaCreate, CuentaUpdate, CuentaResponse,
     DepositoRequest, RetiroRequest, OperacionResponse,
     MovimientoResponse, CuentaFilter, MovimientoFilter
 )
-from models import EstadoCuenta, Moneda
-from deps import get_cuentas_service
+from app.models import EstadoCuenta, Moneda
+from app.deps import get_cuentas_service
 
 
 router = APIRouter(prefix="/cuentas", tags=["Cuentas"])
