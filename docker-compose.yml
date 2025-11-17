@@ -12,3 +12,15 @@ services:
     volumes:
       - ./fastapi-oauth/secrets:/app/secrets:ro
     restart: unless-stopped
+  cuentas:
+    build:
+      context: ./cuentas-service
+      dockerfile: Dockerfile
+    ports:
+      - "8013:8013"
+    env_file:
+      - ./cuentas-service/.env
+    volumes:
+      - ./cuentas-service/secrets:/app/secrets:ro
+    restart: unless-stopped
+    
