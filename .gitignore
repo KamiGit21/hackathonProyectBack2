@@ -75,3 +75,4 @@ Desktop.ini
 *.pid.lock
 docker-data/
 pagos-service-key.json
+prestamos-service-key.json

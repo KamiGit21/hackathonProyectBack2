@@ -57,6 +57,23 @@ services:
       - micro-net
     restart: unless-stopped
 
+  prestamos-service:
+    build:
+      context: ./prestamos-service
+      dockerfile: Dockerfile
+    container_name: prestamos-service
+    ports:
+      - "8005:8005"
+    environment:
+      USE_FIRESTORE: "true"
+      FIREBASE_CREDENTIALS_PATH: "/app/secrets/prestamos-service-key.json"
+    volumes:
+      - ./prestamos-service/secrets:/app/secrets:ro
+    networks:
+      - micro-net
+    restart: unless-stopped
+
+
  
 networks:
   micro-net:
