@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, validator
 from typing import Optional, Literal
 from datetime import datetime
-from models import TipoCuenta, Moneda, EstadoCuenta, TipoMovimiento
+from app.models import TipoCuenta, Moneda, EstadoCuenta, TipoMovimiento
 
 
 # Schemas para Cuenta

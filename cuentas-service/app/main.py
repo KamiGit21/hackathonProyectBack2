@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from config import settings
-from routers import cuentas
+from app.config import settings
+from app.routers import cuentas
 import uvicorn
 
 

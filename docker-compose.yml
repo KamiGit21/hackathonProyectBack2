@@ -38,7 +38,7 @@ services:
       - ./firebase-key.json:/app/firebase-key.json:ro
     networks:
       - micro-net
-
+ 
 networks:
   micro-net:
     driver: bridge
