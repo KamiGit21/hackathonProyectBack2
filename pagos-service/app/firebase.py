@@ -18,7 +18,9 @@ def init_firebase():
             raise RuntimeError("FIREBASE_CREDENTIALS_PATH not set and USE_FIRESTORE is true")
         return
 
-    cred_path = Path(cred_path_env).expanduser().resolve()
+    cred_path = Path(cred_path_env)  # NO resolve()
+    print("Loading Firebase credentials from:", cred_path)  # DEBUG
+
     if not cred_path.is_file():
         raise FileNotFoundError(f"Firebase credentials file not found: {cred_path}")
 

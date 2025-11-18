@@ -23,7 +23,9 @@ services:
     volumes:
       - ./cuentas-service/secrets:/app/secrets:ro
     restart: unless-stopped
-    
+    networks:
+      - micro-net
+
   pagos-service:
     build:
       context: ./pagos-service
@@ -33,9 +35,9 @@ services:
       - "8003:8003"
     environment:
       USE_FIRESTORE: "true"
-      FIREBASE_CREDENTIALS_PATH: "/app/firebase-key.json"
+      FIREBASE_CREDENTIALS_PATH: "/app/secrets/pagos-service-key.json"
     volumes:
-      - ./firebase-key.json:/app/firebase-key.json:ro
+      - ./pagos-service/secrets:/app/secrets:ro
     networks:
       - micro-net
  

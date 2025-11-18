@@ -2,6 +2,9 @@ import time
 import uuid
 import random
 from typing import Optional
+import os
+
+CUENTAS_SERVICE_URL = os.getenv("CUENTAS_SERVICE_URL")
 
 import requests
 from fastapi import APIRouter, HTTPException, status

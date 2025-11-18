@@ -7,6 +7,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
+COPY secrets /app/secrets
 
 ENV USE_FIRESTORE=true
 EXPOSE 8003
