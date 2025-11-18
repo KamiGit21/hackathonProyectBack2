@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     PORT: int = 8002
     
     # Firebase
-    FIREBASE_CREDENTIALS_PATH: str = "secrets/cuentas/firebase-credentials.json"
+    FIREBASE_CREDENTIALS_PATH: str = "secrets/cuentas-service-credentials.json"
     FIREBASE_PROJECT_ID: Optional[str] = None
     
     # CORS

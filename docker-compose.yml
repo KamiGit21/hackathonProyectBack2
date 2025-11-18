@@ -50,7 +50,7 @@ services:
       - "8004:8004"
     environment:
       USE_FIRESTORE: "true"
-      FIREBASE_CREDENTIALS_PATH: "./secrets/transferencias-service-key.json"
+      FIREBASE_CREDENTIALS_PATH: "./secrets/auth/transferencias-service-key.json"
     volumes:
       - ./transferencias-service/secrets:/app/secrets:ro
     networks:
