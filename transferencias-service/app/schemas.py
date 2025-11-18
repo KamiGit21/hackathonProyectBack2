@@ -15,10 +15,6 @@ class TransferenciaInterbancaria(TransferenciaBase):
     banco_destino: str
     nro_cuenta_externa: str
 
-class TransferenciaCreate(BaseModel):
-    # Union in body, but FastAPI handles via discriminators or manual in service
-    pass  # We'll handle in router/service with dependencies
-
 class Transferencia(TransferenciaBase):
     id: str
     cuenta_destino_id: Optional[str] = None

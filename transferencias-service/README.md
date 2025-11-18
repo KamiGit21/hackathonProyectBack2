@@ -16,3 +16,5 @@ Organization: ucb.edu.bo
 - GET / (query: cuenta_id, tipo)
 - GET /{id}
 - POST / (body as described)
+
+Integrates with cuentas-service for account operations.

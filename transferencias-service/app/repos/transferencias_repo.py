@@ -10,10 +10,19 @@ class TransferenciasRepo:
     def get_all(self, cuenta_id: Optional[str] = None, tipo: Optional[str] = None) -> List[Transferencia]:
         query = self.collection
         if cuenta_id:
-            query = query.where("cuenta_origen_id", "==", cuenta_id).or_("cuenta_destino_id", "==", cuenta_id)
+            # Firestore requires union queries for OR
+            # Use two queries and combine results
+            origen_query = self.collection.where("cuenta_origen_id", "==", cuenta_id)
+            destino_query = self.collection.where("cuenta_destino_id", "==", cuenta_id)
+            docs = list(origen_query.stream()) + list(destino_query.stream())
+            # Dedup if needed, but rare
+            transferencias = {doc.id: Transferencia(**doc.to_dict(), id=doc.id) for doc in docs}.values()
+        else:
+            docs = query.stream()
+            transferencias = [Transferencia(**doc.to_dict(), id=doc.id) for doc in docs]
         if tipo:
-            query = query.where("tipo", "==", tipo)
-        return [Transferencia(**doc.to_dict(), id=doc.id) for doc in query.stream()]
+            transferencias = [t for t in transferencias if t.tipo == tipo]
+        return list(transferencias)
 
     def get_by_id(self, transferencia_id: str) -> Optional[Transferencia]:
         doc = self.collection.document(transferencia_id).get()

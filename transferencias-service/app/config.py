@@ -9,6 +9,5 @@ class Config:
     USE_FIRESTORE = os.getenv("USE_FIRESTORE", "true").lower() == "true"
     FIRESTORE_TRANSFERENCIAS_COLLECTION = os.getenv("FIRESTORE_TRANSFERENCIAS_COLLECTION", "transferencias")
     CUENTAS_SERVICE_URL = os.getenv("CUENTAS_SERVICE_URL", "http://cuentas-service:8003/api/cuentas")
-    INTERMEDIARIO_SERVICE_URL = os.getenv("INTERMEDIARIO_SERVICE_URL", "http://intermediario-service:8005/api/transferencias")
 
 config = Config()
