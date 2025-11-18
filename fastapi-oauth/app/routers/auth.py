@@ -124,7 +124,7 @@ async def google_callback(request: Request):
         "email": userinfo.get("email")
     })
 
-    redirect_url = f"{FRONTEND_URL}/auth/callback?{params}"
+    redirect_url = f"{FRONTEND_URL}/callback?{params}"
     return RedirectResponse(url=redirect_url) 
 
 @router.get("/me", response_model=StaffOut)
@@ -149,3 +149,13 @@ def me(user: AuthUser = Depends(current_user)):
         last_update=None,  # opcional: mapear updated_at epoch -> datetime si quieres
         roles=user.roles
     )
+
+@router.post("/logout")
+def logout():
+    """
+    Endpoint de logout.
+    
+    Para JWT real no hay 'logout' en el servidor, solo confirmamos
+    que el cliente debe borrar su token local.
+    """
+    return {"ok": True, "message": "Sesión cerrada. Por favor elimina tu JWT."}
