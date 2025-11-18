@@ -25,6 +25,21 @@ services:
     restart: unless-stopped
     networks:
       - micro-net
+
+  pagos-service:
+    build:
+      context: ./pagos-service
+      dockerfile: Dockerfile
+    container_name: pagos-service
+    ports:
+      - "8003:8003"
+    environment:
+      USE_FIRESTORE: "true"
+      FIREBASE_CREDENTIALS_PATH: "/app/secrets/pagos-service-key.json"
+    volumes:
+      - ./pagos-service/secrets:/app/secrets:ro
+    networks:
+      - micro-net
  
 networks:
   micro-net:
