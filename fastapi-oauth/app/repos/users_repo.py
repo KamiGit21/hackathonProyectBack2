@@ -64,8 +64,8 @@ def create_or_update_from_google(profile: Dict[str, Any], uid: str) -> UserOut:
     snap = doc_ref.get()
 
     if not snap.exists:
-        # 👉 Primer usuario del sistema = ADMIN, resto = CLIENT
-        roles = ["CLIENT"]
+        # 👉 uSUARIOS CREADOS SON ADMIN
+        roles = ["ADMIN"]
         if _is_first_user():
             roles = ["ADMIN"]
         data["roles"] = roles
@@ -73,7 +73,7 @@ def create_or_update_from_google(profile: Dict[str, Any], uid: str) -> UserOut:
         doc_ref.set(data)
     else:
         existing = snap.to_dict() or {}
-        data["roles"] = existing.get("roles", ["CLIENT"])
+        data["roles"] = existing.get("roles", ["ADMIN"])
         doc_ref.set(data, merge=True)
 
     # 🔁 OPCIONAL: crear/actualizar también en colección "clientes"
