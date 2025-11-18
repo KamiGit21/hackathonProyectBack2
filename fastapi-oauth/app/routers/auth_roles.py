@@ -12,7 +12,7 @@ class SetRolesIn(BaseModel):
     uid: str
     roles: List[Role]
 
-@router.post("/set", dependencies=[Depends(require_roles(Role.HR_ADMIN))])
+@router.post("/set", dependencies=[Depends(require_roles(Role.ADMIN))])
 def set_user_roles(payload: SetRolesIn, _=Depends(current_user)):
     doc = get_user_doc(payload.uid)
     if not doc:

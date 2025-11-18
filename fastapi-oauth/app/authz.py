@@ -6,10 +6,8 @@ from app.schemas import AuthUser
 from app.deps import current_user
 
 class Role(str, Enum):
-    HR_ADMIN = "HR_ADMIN"
-    MANAGER = "MANAGER"
-    EMPLOYEE = "EMPLOYEE"
-
+    ADMIN = "ADMIN"
+    CLIENT = "CLIENT"
 def has_any_role(user_roles: Iterable[str], allowed: Iterable[str]) -> bool:
     s = set(user_roles or [])
     return any(r in s for r in allowed)
