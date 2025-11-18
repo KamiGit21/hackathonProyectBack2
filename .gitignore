@@ -74,3 +74,4 @@ Desktop.ini
 *.pid
 *.pid.lock
 docker-data/
+pagos-service-key.json

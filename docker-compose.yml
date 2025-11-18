@@ -35,11 +35,28 @@ services:
       - "8003:8003"
     environment:
       USE_FIRESTORE: "true"
-      FIREBASE_CREDENTIALS_PATH: "/app/secrets/pagos-service-key.json"
+      FIREBASE_CREDENTIALS_PATH: "./secrets/pagos-service-key.json"
     volumes:
       - ./pagos-service/secrets:/app/secrets:ro
     networks:
       - micro-net
+
+  transferencias-service:
+    build:
+      context: ./transferencias-service
+      dockerfile: Dockerfile
+    container_name: transferencias-service
+    ports:
+      - "8004:8004"
+    environment:
+      USE_FIRESTORE: "true"
+      FIREBASE_CREDENTIALS_PATH: "/app/secrets/transferencias-service-key.json"
+    volumes:
+      - ./transferencias-service/secrets:/app/secrets:ro
+    networks:
+      - micro-net
+    restart: unless-stopped
+
  
 networks:
   micro-net:
