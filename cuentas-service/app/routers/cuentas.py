@@ -6,11 +6,42 @@ from app.schemas import (
     DepositoRequest, RetiroRequest, OperacionResponse,
     MovimientoResponse, CuentaFilter, MovimientoFilter
 )
-from app.models import EstadoCuenta, Moneda
+from app.models import EstadoCuenta, Moneda, Cuenta, Movimiento
 from app.deps import get_cuentas_service
 
 
 router = APIRouter(prefix="/cuentas", tags=["Cuentas"])
+
+
+def cuenta_to_response(cuenta: Cuenta) -> CuentaResponse:
+    """Convierte un modelo Cuenta a CuentaResponse"""
+    return CuentaResponse(
+        id=cuenta.id,
+        cliente_id=cuenta.cliente_id,
+        numero_cuenta=cuenta.numero_cuenta,
+        tipo=cuenta.tipo if isinstance(cuenta.tipo, str) else cuenta.tipo.value,
+        moneda=cuenta.moneda if isinstance(cuenta.moneda, str) else cuenta.moneda.value,
+        saldo=cuenta.saldo,
+        estado=cuenta.estado if isinstance(cuenta.estado, str) else cuenta.estado.value,
+        fecha_apertura=cuenta.fecha_apertura,
+        created_at=cuenta.created_at,
+        updated_at=cuenta.updated_at
+    )
+
+
+def movimiento_to_response(mov: Movimiento) -> MovimientoResponse:
+    """Convierte un modelo Movimiento a MovimientoResponse"""
+    return MovimientoResponse(
+        id=mov.id,
+        cuenta_id=mov.cuenta_id,
+        tipo=mov.tipo if isinstance(mov.tipo, str) else mov.tipo.value,
+        monto=mov.monto,
+        saldo_anterior=mov.saldo_anterior,
+        saldo_nuevo=mov.saldo_nuevo,
+        descripcion=mov.descripcion,
+        referencia=mov.referencia,
+        fecha=mov.fecha
+    )
 
 
 @router.post("/", response_model=CuentaResponse, status_code=status.HTTP_201_CREATED)
@@ -28,18 +59,7 @@ async def crear_cuenta(
     """
     try:
         cuenta = service.crear_cuenta(cuenta_data)
-        return CuentaResponse(
-            id=cuenta.id,
-            cliente_id=cuenta.cliente_id,
-            numero_cuenta=cuenta.numero_cuenta,
-            tipo=cuenta.tipo.value,
-            moneda=cuenta.moneda.value,
-            saldo=cuenta.saldo,
-            estado=cuenta.estado.value,
-            fecha_apertura=cuenta.fecha_apertura,
-            created_at=cuenta.created_at,
-            updated_at=cuenta.updated_at
-        )
+        return cuenta_to_response(cuenta)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -72,21 +92,7 @@ async def listar_cuentas(
     
     cuentas = service.listar_cuentas(filters)
     
-    return [
-        CuentaResponse(
-            id=cuenta.id,
-            cliente_id=cuenta.cliente_id,
-            numero_cuenta=cuenta.numero_cuenta,
-            tipo=cuenta.tipo.value,
-            moneda=cuenta.moneda.value,
-            saldo=cuenta.saldo,
-            estado=cuenta.estado.value,
-            fecha_apertura=cuenta.fecha_apertura,
-            created_at=cuenta.created_at,
-            updated_at=cuenta.updated_at
-        )
-        for cuenta in cuentas
-    ]
+    return [cuenta_to_response(cuenta) for cuenta in cuentas]
 
 
 @router.get("/{cuenta_id}", response_model=CuentaResponse)
@@ -100,19 +106,7 @@ async def obtener_cuenta(
     - **cuenta_id**: ID de la cuenta
     """
     cuenta = service.obtener_cuenta(cuenta_id)
-    
-    return CuentaResponse(
-        id=cuenta.id,
-        cliente_id=cuenta.cliente_id,
-        numero_cuenta=cuenta.numero_cuenta,
-        tipo=cuenta.tipo.value,
-        moneda=cuenta.moneda.value,
-        saldo=cuenta.saldo,
-        estado=cuenta.estado.value,
-        fecha_apertura=cuenta.fecha_apertura,
-        created_at=cuenta.created_at,
-        updated_at=cuenta.updated_at
-    )
+    return cuenta_to_response(cuenta)
 
 
 @router.put("/{cuenta_id}", response_model=CuentaResponse)
@@ -128,19 +122,7 @@ async def actualizar_cuenta(
     - **estado**: Cambiar estado de cuenta
     """
     cuenta = service.actualizar_cuenta(cuenta_id, update_data)
-    
-    return CuentaResponse(
-        id=cuenta.id,
-        cliente_id=cuenta.cliente_id,
-        numero_cuenta=cuenta.numero_cuenta,
-        tipo=cuenta.tipo.value,
-        moneda=cuenta.moneda.value,
-        saldo=cuenta.saldo,
-        estado=cuenta.estado.value,
-        fecha_apertura=cuenta.fecha_apertura,
-        created_at=cuenta.created_at,
-        updated_at=cuenta.updated_at
-    )
+    return cuenta_to_response(cuenta)
 
 
 @router.post("/{cuenta_id}/depositar", response_model=OperacionResponse)
@@ -184,19 +166,7 @@ async def bloquear_cuenta(
     Bloquea una cuenta, impidiendo operaciones
     """
     cuenta = service.bloquear_cuenta(cuenta_id)
-    
-    return CuentaResponse(
-        id=cuenta.id,
-        cliente_id=cuenta.cliente_id,
-        numero_cuenta=cuenta.numero_cuenta,
-        tipo=cuenta.tipo.value,
-        moneda=cuenta.moneda.value,
-        saldo=cuenta.saldo,
-        estado=cuenta.estado.value,
-        fecha_apertura=cuenta.fecha_apertura,
-        created_at=cuenta.created_at,
-        updated_at=cuenta.updated_at
-    )
+    return cuenta_to_response(cuenta)
 
 
 @router.post("/{cuenta_id}/desbloquear", response_model=CuentaResponse)
@@ -208,19 +178,7 @@ async def desbloquear_cuenta(
     Desbloquea una cuenta previamente bloqueada
     """
     cuenta = service.desbloquear_cuenta(cuenta_id)
-    
-    return CuentaResponse(
-        id=cuenta.id,
-        cliente_id=cuenta.cliente_id,
-        numero_cuenta=cuenta.numero_cuenta,
-        tipo=cuenta.tipo.value,
-        moneda=cuenta.moneda.value,
-        saldo=cuenta.saldo,
-        estado=cuenta.estado.value,
-        fecha_apertura=cuenta.fecha_apertura,
-        created_at=cuenta.created_at,
-        updated_at=cuenta.updated_at
-    )
+    return cuenta_to_response(cuenta)
 
 
 @router.get("/{cuenta_id}/movimientos", response_model=List[MovimientoResponse])
@@ -235,21 +193,7 @@ async def obtener_movimientos(
     - **limit**: Número máximo de movimientos a retornar (por defecto 50, máximo 200)
     """
     movimientos = service.obtener_movimientos(cuenta_id, limit=limit)
-    
-    return [
-        MovimientoResponse(
-            id=mov.id,
-            cuenta_id=mov.cuenta_id,
-            tipo=mov.tipo.value,
-            monto=mov.monto,
-            saldo_anterior=mov.saldo_anterior,
-            saldo_nuevo=mov.saldo_nuevo,
-            descripcion=mov.descripcion,
-            referencia=mov.referencia,
-            fecha=mov.fecha
-        )
-        for mov in movimientos
-    ]
+    return [movimiento_to_response(mov) for mov in movimientos]
 
 
 # Endpoints adicionales para uso interno de otros microservicios

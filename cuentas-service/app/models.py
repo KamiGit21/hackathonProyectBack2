@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field
-from typing import Optional, Literal
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional, Literal, Union
 from datetime import datetime
 from enum import Enum
 
@@ -32,13 +32,34 @@ class Cuenta(BaseModel):
     id: Optional[str] = None
     cliente_id: str
     numero_cuenta: str
-    tipo: TipoCuenta = TipoCuenta.AHORRO
-    moneda: Moneda = Moneda.BOB
+    tipo: Union[TipoCuenta, str] = TipoCuenta.AHORRO
+    moneda: Union[Moneda, str] = Moneda.BOB
     saldo: float = 0.0
-    estado: EstadoCuenta = EstadoCuenta.ACTIVA
+    estado: Union[EstadoCuenta, str] = EstadoCuenta.ACTIVA
     fecha_apertura: datetime = Field(default_factory=datetime.now)
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
+
+    @field_validator('tipo', mode='before')
+    @classmethod
+    def validate_tipo(cls, v):
+        if isinstance(v, str):
+            return v
+        return v.value if hasattr(v, 'value') else v
+
+    @field_validator('moneda', mode='before')
+    @classmethod
+    def validate_moneda(cls, v):
+        if isinstance(v, str):
+            return v
+        return v.value if hasattr(v, 'value') else v
+
+    @field_validator('estado', mode='before')
+    @classmethod
+    def validate_estado(cls, v):
+        if isinstance(v, str):
+            return v
+        return v.value if hasattr(v, 'value') else v
 
     class Config:
         use_enum_values = True
@@ -47,7 +68,7 @@ class Cuenta(BaseModel):
 class Movimiento(BaseModel):
     id: Optional[str] = None
     cuenta_id: str
-    tipo: TipoMovimiento
+    tipo: Union[TipoMovimiento, str]
     monto: float
     saldo_anterior: float
     saldo_nuevo: float
@@ -55,6 +76,13 @@ class Movimiento(BaseModel):
     referencia: Optional[str] = None
     fecha: datetime = Field(default_factory=datetime.now)
     created_at: datetime = Field(default_factory=datetime.now)
+
+    @field_validator('tipo', mode='before')
+    @classmethod
+    def validate_tipo(cls, v):
+        if isinstance(v, str):
+            return v
+        return v.value if hasattr(v, 'value') else v
 
     class Config:
         use_enum_values = True
