@@ -1,20 +1,20 @@
 # app/schemas.py
 from pydantic import BaseModel, EmailStr, Field
-from datetime import datetime
+from datetime import datetime, date
+from enum import Enum
 from typing import Optional
 from enum import Enum
 from typing import List
 
 class Role(str, Enum):
-    HR_ADMIN = "HR_ADMIN"
-    MANAGER = "MANAGER"
-    EMPLOYEE = "EMPLOYEE"
+    ADMIN = "ADMIN"
+    CLIENT = "CLIENT"
 
 class AuthUser(BaseModel):
     uid: str
     email: Optional[str] = None
     roles: List[str] = []
-    
+
 # === Documento de usuario (Firestore) ===
 class UserDoc(BaseModel):
     uid: str
@@ -41,6 +41,7 @@ class UserOut(BaseModel):
     username: str
     active: bool
     last_update: Optional[datetime] = None
+    roles: List[str] = []
 
 # Alias de compatibilidad para no romper clientes
 StaffOut = UserOut
@@ -52,6 +53,7 @@ class TokenOut(BaseModel):
 class MeOut(BaseModel):
     user: StaffOut
     token: TokenOut
+    roles: List[str] = []
 
 # === Entradas administrativas opcionales ===
 class StaffCreateFromGoogle(BaseModel):

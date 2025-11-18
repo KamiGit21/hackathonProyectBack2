@@ -1,6 +1,6 @@
-from firebase import get_firebase_db
-from repos.cuentas_repo import CuentasRepository
-from services.cuentas_service import CuentasService
+from app.firebase import get_firebase_db
+from app.repos.cuentas_repo import CuentasRepository
+from app.services.cuentas_service import CuentasService
 from fastapi import Depends
 
 

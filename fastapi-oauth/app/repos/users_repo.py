@@ -62,19 +62,36 @@ def create_or_update_from_google(profile: Dict[str, Any], uid: str) -> UserOut:
 
     doc_ref = _users_col().document(uid)
     snap = doc_ref.get()
+
     if not snap.exists:
-        # ⛳ primer usuario del sistema => HR_ADMIN
-        roles = ["EMPLOYEE"]
+        # 👉 uSUARIOS CREADOS SON ADMIN
+        roles = ["ADMIN"]
         if _is_first_user():
-            roles = ["HR_ADMIN"]  # que admin arranque
+            roles = ["ADMIN"]
         data["roles"] = roles
         data["created_at"] = now
         doc_ref.set(data)
     else:
-        # no pisar roles existentes
         existing = snap.to_dict() or {}
-        data["roles"] = existing.get("roles", ["EMPLOYEE"])
+        data["roles"] = existing.get("roles", ["ADMIN"])
         doc_ref.set(data, merge=True)
+
+    # 🔁 OPCIONAL: crear/actualizar también en colección "clientes"
+    try:
+        fs = get_firestore()
+        clientes_col = fs.collection("clientes")
+        dup = clientes_col.where("email", "==", email).limit(1).stream()
+        if next(dup, None) is None:
+            clientes_col.document().set({
+                "nombre": profile.get("given_name") or "",
+                "apellidos": profile.get("family_name") or "",
+                "email": email,
+                "estado": "ACTIVO",
+                "fecha_alta": now,
+                # CI / teléfono se podrán completar luego desde el front
+            })
+    except Exception as e:
+        print(f"[WARN] clientes mirror failed: {e}")
 
     return _to_user_out({**snap.to_dict(), **data} if snap.exists else data)
 

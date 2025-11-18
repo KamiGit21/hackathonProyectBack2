@@ -1,8 +1,8 @@
 from typing import List, Optional
 from datetime import datetime
 from firebase_admin import firestore
-from models import Cuenta, Movimiento, EstadoCuenta
-from schemas import CuentaFilter, MovimientoFilter
+from app.models import Cuenta, Movimiento, EstadoCuenta
+from app.schemas import CuentaFilter, MovimientoFilter
 import random
 import string
 
@@ -38,9 +38,19 @@ class CuentasRepository:
         cuenta.updated_at = datetime.now()
         
         cuenta_dict = cuenta.model_dump(exclude={"id"})
+        
+        # Convertir datetime a formato compatible con Firestore
         cuenta_dict["fecha_apertura"] = cuenta.fecha_apertura
         cuenta_dict["created_at"] = cuenta.created_at
         cuenta_dict["updated_at"] = cuenta.updated_at
+        
+        # Asegurar que los Enums se guarden como strings
+        if hasattr(cuenta_dict.get("tipo"), 'value'):
+            cuenta_dict["tipo"] = cuenta_dict["tipo"].value
+        if hasattr(cuenta_dict.get("moneda"), 'value'):
+            cuenta_dict["moneda"] = cuenta_dict["moneda"].value
+        if hasattr(cuenta_dict.get("estado"), 'value'):
+            cuenta_dict["estado"] = cuenta_dict["estado"].value
         
         doc_ref = self.db.collection(self.collection).add(cuenta_dict)
         return doc_ref[1].id
@@ -54,6 +64,15 @@ class CuentasRepository:
         
         data = doc.to_dict()
         data["id"] = doc.id
+        
+        # Asegurar que los campos datetime sean datetime objects
+        if isinstance(data.get("fecha_apertura"), str):
+            data["fecha_apertura"] = datetime.fromisoformat(data["fecha_apertura"].replace('Z', '+00:00'))
+        if isinstance(data.get("created_at"), str):
+            data["created_at"] = datetime.fromisoformat(data["created_at"].replace('Z', '+00:00'))
+        if isinstance(data.get("updated_at"), str):
+            data["updated_at"] = datetime.fromisoformat(data["updated_at"].replace('Z', '+00:00'))
+        
         return Cuenta(**data)
 
     def get_by_numero_cuenta(self, numero_cuenta: str) -> Optional[Cuenta]:
@@ -65,6 +84,15 @@ class CuentasRepository:
         for doc in docs:
             data = doc.to_dict()
             data["id"] = doc.id
+            
+            # Asegurar que los campos datetime sean datetime objects
+            if isinstance(data.get("fecha_apertura"), str):
+                data["fecha_apertura"] = datetime.fromisoformat(data["fecha_apertura"].replace('Z', '+00:00'))
+            if isinstance(data.get("created_at"), str):
+                data["created_at"] = datetime.fromisoformat(data["created_at"].replace('Z', '+00:00'))
+            if isinstance(data.get("updated_at"), str):
+                data["updated_at"] = datetime.fromisoformat(data["updated_at"].replace('Z', '+00:00'))
+            
             return Cuenta(**data)
         
         return None
@@ -79,9 +107,13 @@ class CuentasRepository:
             if filters.numero_cuenta:
                 query = query.where("numero_cuenta", "==", filters.numero_cuenta)
             if filters.estado:
-                query = query.where("estado", "==", filters.estado.value)
+                # Convertir Enum a string si es necesario
+                estado_value = filters.estado.value if hasattr(filters.estado, 'value') else filters.estado
+                query = query.where("estado", "==", estado_value)
             if filters.moneda:
-                query = query.where("moneda", "==", filters.moneda.value)
+                # Convertir Enum a string si es necesario
+                moneda_value = filters.moneda.value if hasattr(filters.moneda, 'value') else filters.moneda
+                query = query.where("moneda", "==", moneda_value)
         
         docs = query.stream()
         cuentas = []
@@ -89,6 +121,15 @@ class CuentasRepository:
         for doc in docs:
             data = doc.to_dict()
             data["id"] = doc.id
+            
+            # Asegurar que los campos datetime sean datetime objects
+            if isinstance(data.get("fecha_apertura"), str):
+                data["fecha_apertura"] = datetime.fromisoformat(data["fecha_apertura"].replace('Z', '+00:00'))
+            if isinstance(data.get("created_at"), str):
+                data["created_at"] = datetime.fromisoformat(data["created_at"].replace('Z', '+00:00'))
+            if isinstance(data.get("updated_at"), str):
+                data["updated_at"] = datetime.fromisoformat(data["updated_at"].replace('Z', '+00:00'))
+            
             cuentas.append(Cuenta(**data))
         
         return cuentas
@@ -96,6 +137,12 @@ class CuentasRepository:
     def update(self, cuenta_id: str, update_data: dict) -> bool:
         """Actualiza una cuenta"""
         update_data["updated_at"] = datetime.now()
+        
+        # Convertir Enums a strings si es necesario
+        if "estado" in update_data and hasattr(update_data["estado"], 'value'):
+            update_data["estado"] = update_data["estado"].value
+        if "tipo" in update_data and hasattr(update_data["tipo"], 'value'):
+            update_data["tipo"] = update_data["tipo"].value
         
         doc_ref = self.db.collection(self.collection).document(cuenta_id)
         doc_ref.update(update_data)
@@ -107,7 +154,8 @@ class CuentasRepository:
 
     def cambiar_estado(self, cuenta_id: str, nuevo_estado: EstadoCuenta) -> bool:
         """Cambia el estado de una cuenta"""
-        return self.update(cuenta_id, {"estado": nuevo_estado.value})
+        estado_value = nuevo_estado.value if hasattr(nuevo_estado, 'value') else nuevo_estado
+        return self.update(cuenta_id, {"estado": estado_value})
 
     def delete(self, cuenta_id: str) -> bool:
         """Elimina una cuenta (soft delete)"""
@@ -121,6 +169,10 @@ class CuentasRepository:
         movimiento_dict = movimiento.model_dump(exclude={"id"})
         movimiento_dict["fecha"] = movimiento.fecha
         movimiento_dict["created_at"] = movimiento.created_at
+        
+        # Asegurar que el Enum se guarde como string
+        if hasattr(movimiento_dict.get("tipo"), 'value'):
+            movimiento_dict["tipo"] = movimiento_dict["tipo"].value
         
         doc_ref = self.db.collection(self.movimientos_collection).add(movimiento_dict)
         return doc_ref[1].id
@@ -138,7 +190,8 @@ class CuentasRepository:
         
         if filters:
             if filters.tipo:
-                query = query.where("tipo", "==", filters.tipo.value)
+                tipo_value = filters.tipo.value if hasattr(filters.tipo, 'value') else filters.tipo
+                query = query.where("tipo", "==", tipo_value)
             if filters.fecha_desde:
                 query = query.where("fecha", ">=", filters.fecha_desde)
             if filters.fecha_hasta:
@@ -150,6 +203,13 @@ class CuentasRepository:
         for doc in docs:
             data = doc.to_dict()
             data["id"] = doc.id
+            
+            # Asegurar que los campos datetime sean datetime objects
+            if isinstance(data.get("fecha"), str):
+                data["fecha"] = datetime.fromisoformat(data["fecha"].replace('Z', '+00:00'))
+            if isinstance(data.get("created_at"), str):
+                data["created_at"] = datetime.fromisoformat(data["created_at"].replace('Z', '+00:00'))
+            
             movimientos.append(Movimiento(**data))
         
         return movimientos
